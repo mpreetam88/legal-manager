@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Login</h2>
+
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+
+<br><br>
+
+<button onclick="login()">Login</button>
+<button onclick="register()">Register</button>
+
+<script>
+function login() {
+    fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            username: user.value,
+            password: pass.value
+        })
+    })
+    .then(res => res.text())
+    .then(data => alert(data));
+}
+
+function register() {
+    fetch('/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            username: user.value,
+            password: pass.value
+        })
+    })
+    .then(res => res.text())
+    .then(data => alert(data));
+}
+</script>
+
+</body>
+</html>
