@@ -16,8 +16,7 @@ const dataDir = process.env.DATA_DIR || __dirname;
 const sourceDb = path.join(__dirname, 'database_backup.db');
 const targetDb = path.join(dataDir, 'database.db');
 
-// One-time forced restore from backup
-if (fs.existsSync(sourceDb)) {
+if (!fs.existsSync(targetDb) && fs.existsSync(sourceDb)) {
   fs.copyFileSync(sourceDb, targetDb);
   console.log('Database restored from backup');
 }
