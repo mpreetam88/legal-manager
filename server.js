@@ -11,6 +11,15 @@ const PORT = process.env.PORT || 4000;
 
 // -------------------- PATHS --------------------
 const dataDir = process.env.DATA_DIR || __dirname;
+
+// If database doesn't exist in /data, copy from project root
+const sourceDb = path.join(__dirname, 'database_backup.db');
+const targetDb = path.join(dataDir, 'database.db');
+
+if (!fs.existsSync(targetDb) && fs.existsSync(sourceDb)) {
+  fs.copyFileSync(sourceDb, targetDb);
+  console.log('Database restored from backup');
+}
 const publicDir = path.join(__dirname, 'public');
 const uploadsDir = path.join(dataDir, 'uploads');
 const dbPath = path.join(dataDir, 'database.db');
