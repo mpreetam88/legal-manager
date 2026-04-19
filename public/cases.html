@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cases - N.K Mishra & Associates</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <h1>N.K Mishra & Associates</h1>
+        <p>Legal Practice Management</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="sidebar-link" href="/dashboard.html">Dashboard</a>
+        <a class="sidebar-link" href="/clients.html">Clients</a>
+        <a class="sidebar-link active" href="/cases.html">Cases</a>
+        <a class="sidebar-link" href="/hearing.html">Hearings</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="logout-link" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div>
+          <h2 class="page-title">Cases</h2>
+          <p class="page-subtitle">Track matters, hearing dates, status, and related documents.</p>
+        </div>
+        <div class="topbar-meta">
+          <div class="label">Section</div>
+          <div class="value">Case Management</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <h2 id="formHeading">Add New Case</h2>
+          <div id="editIndicator" class="small-muted" style="font-weight:bold;color:#d97706;"></div>
+        </div>
+
+        <input type="hidden" id="editCaseId" />
+
+        <div class="form-grid">
+          <div>
+            <label for="title">Case Title</label>
+            <input id="title" placeholder="Enter case title" />
+          </div>
+
+          <div>
+            <label for="caseNumber">Case Number</label>
+            <input id="caseNumber" placeholder="Enter case number" />
+          </div>
+
+          <div>
+            <label for="court">Court Name</label>
+            <input id="court" placeholder="Enter court name" />
+          </div>
+
+          <div>
+            <label for="nextDate">Next Date</label>
+            <input id="nextDate" type="date" />
+          </div>
+
+          <div>
+            <label for="status">Case Status</label>
+            <select id="status">
+              <option value="Pending">Pending</option>
+              <option value="Closed">Closed</option>
+              <option value="Disposed">Disposed</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="clientName">Client</label>
+            <select id="clientName"></select>
+          </div>
+
+          <div class="form-full">
+            <label for="notes">Notes</label>
+            <textarea id="notes" placeholder="Add case notes"></textarea>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn" id="saveBtn" onclick="saveCase()">Add Case</button>
+          <button class="btn btn-muted" id="cancelBtn" onclick="cancelEdit()" style="display:none;">Cancel Edit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Search Cases</h2>
+        <div class="form-grid">
+          <div class="form-full">
+            <label for="searchBox">Search</label>
+            <input id="searchBox" placeholder="Search by title, case number, court, client" />
+          </div>
+        </div>
+
+        <div class="button-row">
+  <button class="btn" onclick="searchCases()">Search</button>
+  <button class="btn btn-muted" onclick="loadCases()">Show All</button>
+  <button class="btn" onclick="exportCasesPdf()">Export PDF</button>
+</div>
+
+      <div class="card">
+        <h2>Case List</h2>
+        <div id="caseList"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let cachedCases = [];
+
+    function getStatusClass(status) {
+      if (status === 'Closed') return 'badge badge-closed';
+      if (status === 'Disposed') return 'badge badge-disposed';
+      return 'badge badge-pending';
+    }
+
+    function clearForm() {
+      document.getElementById('editCaseId').value = '';
+      document.getElementById('title').value = '';
+      document.getElementById('caseNumber').value = '';
+      document.getElementById('court').value = '';
+      document.getElementById('nextDate').value = '';
+      document.getElementById('notes').value = '';
+      document.getElementById('status').value = 'Pending';
+
+      document.getElementById('formHeading').innerText = 'Add New Case';
+      document.getElementById('editIndicator').innerText = '';
+      document.getElementById('saveBtn').innerText = 'Add Case';
+      document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    function cancelEdit() {
+      clearForm();
+    }
+
+    async function loadClientsDropdown() {
+      try {
+        const res = await fetch('/clients', { credentials: 'same-origin' });
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const clients = await res.json();
+        const dropdown = document.getElementById('clientName');
+        dropdown.innerHTML = '';
+
+        clients.forEach(client => {
+          const option = document.createElement('option');
+          option.value = client.name;
+          option.textContent = client.name;
+          dropdown.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading clients:', error);
+      }
+    }
+
+    async function saveCase() {
+      const editCaseId = document.getElementById('editCaseId').value;
+
+      const data = {
+        title: document.getElementById('title').value.trim(),
+        caseNumber: document.getElementById('caseNumber').value.trim(),
+        court: document.getElementById('court').value.trim(),
+        nextDate: document.getElementById('nextDate').value,
+        notes: document.getElementById('notes').value.trim(),
+        status: document.getElementById('status').value,
+        clientName: document.getElementById('clientName').value
+      };
+
+      if (!data.title || !data.caseNumber || !data.court || !data.nextDate || !data.clientName) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      try {
+        let res;
+
+        if (editCaseId) {
+          res = await fetch('/cases/' + editCaseId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+          });
+        } else {
+          res = await fetch('/cases', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+          });
+        }
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          clearForm();
+          loadCases();
+        } else {
+          alert(result.message || 'Operation failed');
+        }
+      } catch (error) {
+        console.error('Error saving case:', error);
+        alert('Error saving case');
+      }
+    }
+
+    async function loadCases() {
+      try {
+        const res = await fetch('/cases', { credentials: 'same-origin' });
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const cases = await res.json();
+        cachedCases = cases;
+        displayCases(cases);
+      } catch (error) {
+        console.error('Error loading cases:', error);
+      }
+    }
+
+    async function searchCases() {
+      try {
+        const q = document.getElementById('searchBox').value.trim();
+        const res = await fetch('/cases?search=' + encodeURIComponent(q), {
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const cases = await res.json();
+        cachedCases = cases;
+        displayCases(cases);
+      } catch (error) {
+        console.error('Error searching cases:', error);
+      }
+    }
+
+    function displayCases(cases) {
+      const list = document.getElementById('caseList');
+      list.innerHTML = '';
+
+      if (!cases.length) {
+        list.innerHTML = '<p class="small-muted">No cases found.</p>';
+        return;
+      }
+
+      cases.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'list-card';
+
+        card.innerHTML = `
+          <div class="list-card-title">${item.title || ''}</div>
+          <div class="meta-line"><strong>Case No:</strong> ${item.caseNumber || ''}</div>
+          <div class="meta-line"><strong>Court:</strong> ${item.court || ''}</div>
+          <div class="meta-line"><strong>Next Date:</strong> ${item.nextDate || ''}</div>
+          <div class="meta-line"><strong>Client:</strong> ${item.clientName || ''}</div>
+          <div class="${getStatusClass(item.status || 'Pending')}">${item.status || 'Pending'}</div>
+          <div class="meta-line" style="margin-top:10px;"><strong>Notes:</strong> ${item.notes || '-'}</div>
+
+          <div style="margin-top:14px;">
+            <label>Upload Document</label>
+            <input type="file" onchange="uploadFile(event, ${item.id})" />
+          </div>
+
+          <div style="margin-top:12px;">
+            <strong>Documents:</strong>
+            <ul id="docs-${item.id}" class="documents-list"></ul>
+          </div>
+
+          <div class="button-row">
+            <button class="btn btn-warning" onclick="editCaseById(${item.id})">Edit</button>
+            <button class="btn btn-danger" onclick="deleteCase(${item.id})">Delete</button>
+          </div>
+        `;
+
+        list.appendChild(card);
+        loadDocuments(item.id);
+      });
+    }
+
+    function editCaseById(id) {
+      const item = cachedCases.find(c => Number(c.id) === Number(id));
+      if (!item) return;
+
+      document.getElementById('editCaseId').value = item.id;
+      document.getElementById('title').value = item.title || '';
+      document.getElementById('caseNumber').value = item.caseNumber || '';
+      document.getElementById('court').value = item.court || '';
+      document.getElementById('nextDate').value = item.nextDate || '';
+      document.getElementById('notes').value = item.notes || '';
+      document.getElementById('status').value = item.status || 'Pending';
+      document.getElementById('clientName').value = item.clientName || '';
+
+      document.getElementById('formHeading').innerText = 'Edit Case';
+      document.getElementById('editIndicator').innerText = 'Editing case #' + item.id;
+      document.getElementById('saveBtn').innerText = 'Update Case';
+      document.getElementById('cancelBtn').style.display = 'inline-block';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteCase(id) {
+      const ok = confirm('Are you sure you want to delete this case?');
+      if (!ok) return;
+
+      try {
+        const res = await fetch('/cases/' + id, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          loadCases();
+        } else {
+          alert('Error deleting case');
+        }
+      } catch (error) {
+        console.error('Error deleting case:', error);
+      }
+    }
+
+    async function uploadFile(event, caseId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('caseId', caseId);
+
+        const res = await fetch('/upload', {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: formData
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          loadDocuments(caseId);
+          alert('File uploaded successfully');
+        } else {
+          alert('Upload failed');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload failed');
+      }
+    }
+
+    async function loadDocuments(caseId) {
+      try {
+        const res = await fetch('/documents/' + caseId, {
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const docs = await res.json();
+        const list = document.getElementById('docs-' + caseId);
+        if (!list) return;
+
+        list.innerHTML = '';
+
+        if (!docs.length) {
+          list.innerHTML = '<li class="small-muted">No documents uploaded.</li>';
+          return;
+        }
+
+        docs.forEach(d => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <a href="/uploads/${d.filePath}" target="_blank">${d.fileName}</a>
+            <button class="btn btn-danger" style="padding:7px 10px;font-size:12px;" onclick="deleteDocument(${d.id}, ${caseId})">Delete</button>
+          `;
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error loading documents:', error);
+      }
+    }
+
+    async function deleteDocument(docId, caseId) {
+      const ok = confirm('Are you sure you want to delete this document?');
+      if (!ok) return;
+
+      try {
+        const res = await fetch('/documents/' + docId, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          loadDocuments(caseId);
+        } else {
+          alert(result.message || 'Error deleting document');
+        }
+      } catch (error) {
+        console.error('Error deleting document:', error);
+        alert('Error deleting document');
+      }
+    }
+
+    function exportCasesPdf() {
+  const search = document.getElementById('searchBox').value.trim();
+  const url = '/export-cases-pdf?search=' + encodeURIComponent(search);
+  window.open(url, '_blank');
+}
+    async function logout() {
+      try {
+        await fetch('/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        window.location.href = '/login.html';
+      } catch (error) {
+        alert('Logout failed');
+      }
+    }
+
+    loadClientsDropdown();
+    loadCases();
+  </script>
+</body>
+</html>

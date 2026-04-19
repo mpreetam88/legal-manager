@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clients - N.K Mishra & Associates</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <h1>N.K Mishra & Associates</h1>
+        <p>Legal Practice Management</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="sidebar-link" href="/dashboard.html">Dashboard</a>
+        <a class="sidebar-link active" href="/clients.html">Clients</a>
+        <a class="sidebar-link" href="/cases.html">Cases</a>
+        <a class="sidebar-link" href="/hearing.html">Hearings</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="logout-link" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div>
+          <h2 class="page-title">Clients</h2>
+          <p class="page-subtitle">Manage client records, update details, and organize contact information.</p>
+        </div>
+        <div class="topbar-meta">
+          <div class="label">Section</div>
+          <div class="value">Client Management</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <h2 id="formHeading">Add New Client</h2>
+          <div id="editIndicator" class="small-muted" style="font-weight:bold;color:#d97706;"></div>
+        </div>
+
+        <input type="hidden" id="editClientId" />
+
+        <div class="form-grid">
+          <div>
+            <label for="name">Client Name</label>
+            <input id="name" placeholder="Enter client name" />
+          </div>
+          <div>
+            <label for="phone">Phone Number</label>
+            <input id="phone" placeholder="Enter phone number" />
+          </div>
+          <div>
+            <label for="email">Email Address</label>
+            <input id="email" type="email" placeholder="Enter email address" />
+          </div>
+          <div>
+            <label for="address">Address</label>
+            <input id="address" placeholder="Enter address" />
+          </div>
+          <div class="form-full">
+            <label for="notes">Notes</label>
+            <textarea id="notes" placeholder="Additional notes"></textarea>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn" id="saveBtn" onclick="saveClient()">Add Client</button>
+          <button class="btn btn-muted" id="cancelBtn" onclick="cancelEdit()" style="display:none;">Cancel Edit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Search Clients</h2>
+        <div class="form-grid">
+          <div class="form-full">
+            <label for="searchBox">Search</label>
+            <input id="searchBox" placeholder="Search by name, phone, email, address" />
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn" onclick="searchClients()">Search</button>
+          <button class="btn btn-muted" onclick="loadClients()">Show All</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Client List</h2>
+        <div id="clientList"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function createSafeText(value) {
+      return value ? String(value) : '-';
+    }
+
+    function clearForm() {
+      document.getElementById('editClientId').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('address').value = '';
+      document.getElementById('notes').value = '';
+
+      document.getElementById('formHeading').innerText = 'Add New Client';
+      document.getElementById('editIndicator').innerText = '';
+      document.getElementById('saveBtn').innerText = 'Add Client';
+      document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    function cancelEdit() {
+      clearForm();
+    }
+
+    async function saveClient() {
+      const editClientId = document.getElementById('editClientId').value;
+
+      const data = {
+        name: document.getElementById('name').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        notes: document.getElementById('notes').value.trim()
+      };
+
+      if (!data.name) {
+        alert('Client name is required');
+        return;
+      }
+
+      try {
+        let res;
+
+        if (editClientId) {
+          res = await fetch('/clients/' + editClientId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+          });
+        } else {
+          res = await fetch('/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+          });
+        }
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          clearForm();
+          loadClients();
+        } else {
+          alert(result.message || 'Operation failed');
+        }
+      } catch (error) {
+        console.error('Error saving client:', error);
+        alert('Error saving client');
+      }
+    }
+
+    async function loadClients() {
+      try {
+        const res = await fetch('/clients', { credentials: 'same-origin' });
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const clients = await res.json();
+        displayClients(clients);
+      } catch (error) {
+        console.error('Error loading clients:', error);
+        document.getElementById('clientList').innerHTML = '<p>Unable to load clients.</p>';
+      }
+    }
+
+    async function searchClients() {
+      try {
+        const search = document.getElementById('searchBox').value.trim();
+        const res = await fetch('/clients?search=' + encodeURIComponent(search), {
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const clients = await res.json();
+        displayClients(clients);
+      } catch (error) {
+        console.error('Error searching clients:', error);
+      }
+    }
+
+    function displayClients(clients) {
+      const list = document.getElementById('clientList');
+      list.innerHTML = '';
+
+      if (!clients.length) {
+        list.innerHTML = '<p class="small-muted">No clients found.</p>';
+        return;
+      }
+
+      clients.forEach(client => {
+        const card = document.createElement('div');
+        card.className = 'list-card';
+
+        card.innerHTML = `
+          <div class="list-card-title">${createSafeText(client.name)}</div>
+          <div class="meta-line"><strong>Phone:</strong> ${createSafeText(client.phone)}</div>
+          <div class="meta-line"><strong>Email:</strong> ${createSafeText(client.email)}</div>
+          <div class="meta-line"><strong>Address:</strong> ${createSafeText(client.address)}</div>
+          <div class="meta-line"><strong>Notes:</strong> ${createSafeText(client.notes)}</div>
+          <div class="button-row">
+            <button class="btn btn-warning" onclick="editClientById(${client.id})">Edit</button>
+            <button class="btn btn-danger" onclick="deleteClient(${client.id})">Delete</button>
+          </div>
+        `;
+
+        card.dataset.client = JSON.stringify(client);
+        list.appendChild(card);
+      });
+    }
+
+    async function editClientById(id) {
+      try {
+        const res = await fetch('/clients', { credentials: 'same-origin' });
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const clients = await res.json();
+        const client = clients.find(c => Number(c.id) === Number(id));
+        if (!client) return;
+
+        document.getElementById('editClientId').value = client.id || '';
+        document.getElementById('name').value = client.name || '';
+        document.getElementById('phone').value = client.phone || '';
+        document.getElementById('email').value = client.email || '';
+        document.getElementById('address').value = client.address || '';
+        document.getElementById('notes').value = client.notes || '';
+
+        document.getElementById('formHeading').innerText = 'Edit Client';
+        document.getElementById('editIndicator').innerText = 'Editing client #' + client.id;
+        document.getElementById('saveBtn').innerText = 'Update Client';
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (error) {
+        console.error('Error loading client for edit:', error);
+      }
+    }
+
+    async function deleteClient(id) {
+      const ok = confirm('Are you sure you want to delete this client?');
+      if (!ok) return;
+
+      try {
+        const res = await fetch('/clients/' + id, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+
+        if (!res.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          loadClients();
+        } else {
+          alert(result.message || 'Error deleting client');
+        }
+      } catch (error) {
+        console.error('Error deleting client:', error);
+        alert('Error deleting client');
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        window.location.href = '/login.html';
+      } catch (error) {
+        alert('Logout failed');
+      }
+    }
+
+    loadClients();
+  </script>
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - N.K Mishra & Associates</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-panel,
+    .hero-side-panel {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-panel {
+      padding: 28px;
+    }
+
+    .hero-side-panel {
+      padding: 24px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #e9f2ff;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .hero-panel h3,
+    .hero-side-panel h3 {
+      margin: 0 0 10px 0;
+      color: var(--primary);
+    }
+
+    .hero-panel p,
+    .hero-side-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .section-heading {
+      margin: 0 0 14px 0;
+      color: var(--primary);
+      font-size: 24px;
+    }
+
+    .stats-premium {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .stats-premium .stat-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-premium .stat-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(58,123,213,0.06), transparent 48%);
+      pointer-events: none;
+    }
+
+    .stat-card .stat-label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-card .stat-value {
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .alert-premium {
+      background: linear-gradient(180deg, #fff7f7 0%, #fffdfd 100%);
+      border: 1px solid #f1c6c6;
+    }
+
+    .alert-premium h2 {
+      margin-bottom: 10px;
+      color: #b42318;
+    }
+
+    .alert-list p {
+      margin: 0 0 8px 0;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quick-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+      border: 1px solid #e8eef6;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .quick-card h3 {
+      margin: 0 0 8px 0;
+      color: var(--primary);
+      font-size: 17px;
+    }
+
+    .quick-card p {
+      margin: 0 0 14px 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-item {
+      background: #f8fbff;
+      border: 1px solid #e8eef6;
+      border-radius: 16px;
+      padding: 14px 15px;
+    }
+
+    .summary-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--primary);
+      font-size: 15px;
+    }
+
+    .summary-item span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .cause-list-card {
+      margin-bottom: 22px;
+    }
+
+    .cause-list-card .page-subtitle {
+      margin-bottom: 16px;
+    }
+
+    .cause-list-row {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .cause-list-row .field {
+      min-width: 240px;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 1100px) {
+      .dashboard-hero,
+      .dashboard-grid,
+      .stats-premium {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .quick-actions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-panel,
+      .hero-side-panel {
+        padding: 20px;
+      }
+
+      .stat-card .stat-value {
+        font-size: 32px;
+      }
+
+      .cause-list-row .field {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <h1>N.K Mishra & Associates</h1>
+        <p>Legal Practice Management</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="sidebar-link active" href="/dashboard.html">Dashboard</a>
+        <a class="sidebar-link" href="/clients.html">Clients</a>
+        <a class="sidebar-link" href="/cases.html">Cases</a>
+        <a class="sidebar-link" href="/hearing.html">Hearings</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="logout-link" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div>
+          <h2 class="page-title">Dashboard</h2>
+          <p class="page-subtitle">Welcome to your chamber workspace for daily case and hearing management.</p>
+        </div>
+        <div class="topbar-meta">
+          <div class="label">Today</div>
+          <div class="value" id="currentDate"></div>
+        </div>
+      </div>
+
+      <section class="dashboard-hero">
+        <div class="hero-panel">
+          <div class="hero-tag">Chamber Overview</div>
+          <h3>N.K Mishra & Associates</h3>
+          <p>
+            This dashboard gives you a clear view of ongoing legal work, active clients,
+            hearing schedules, and case movement — all in one organized professional workspace.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn" onclick="goToCases()">Open Cases</button>
+            <button class="btn btn-muted" onclick="goToClients()">Open Clients</button>
+            <button class="btn btn-muted" onclick="goToHearings()">Open Hearings</button>
+          </div>
+        </div>
+
+        <div class="hero-side-panel">
+          <h3>Daily Focus</h3>
+          <div class="summary-list">
+            <div class="summary-item">
+              <strong>Review urgent matters</strong>
+              <span>Check today’s and tomorrow’s hearing alerts before beginning work.</span>
+            </div>
+            <div class="summary-item">
+              <strong>Keep records updated</strong>
+              <span>Maintain client and case details accurately for faster office handling.</span>
+            </div>
+            <div class="summary-item">
+              <strong>Stay hearing-ready</strong>
+              <span>Use the hearing calendar and dashboard counts to avoid missed dates.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="card alert-premium">
+        <h2>Urgent Hearing Alerts</h2>
+        <div id="alerts" class="alert-list small-muted">Loading alerts...</div>
+      </div>
+
+      <h2 class="section-heading">Overview</h2>
+      <section class="stats-premium">
+        <div class="stat-card">
+          <div class="stat-label">Total Clients</div>
+          <div class="stat-value" id="totalClients">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Total Cases</div>
+          <div class="stat-value" id="totalCases">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Upcoming Hearings</div>
+          <div class="stat-value" id="upcomingHearings">0</div>
+        </div>
+      </section>
+
+      <div class="card cause-list-card">
+        <h2>Daily Cause List</h2>
+        <p class="page-subtitle">
+          Generate a PDF cause list for any selected date, including case details and court name.
+        </p>
+
+        <div class="cause-list-row">
+          <div class="field">
+            <label for="causeListDate">Select Date</label>
+            <input type="date" id="causeListDate" />
+          </div>
+
+          <div class="button-row" style="margin-top: 0;">
+            <button class="btn" onclick="downloadDailyCauseList()">Download Daily Cause List PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="dashboard-grid">
+        <div class="card">
+          <h2>Quick Actions</h2>
+          <div class="quick-actions-grid">
+            <div class="quick-card">
+              <h3>Client Records</h3>
+              <p>Add, edit, review, and search client information with ease.</p>
+              <button class="btn" onclick="goToClients()">Manage Clients</button>
+            </div>
+
+            <div class="quick-card">
+              <h3>Case Files</h3>
+              <p>Track case numbers, courts, status, notes, and linked documents.</p>
+              <button class="btn" onclick="goToCases()">Manage Cases</button>
+            </div>
+
+            <div class="quick-card">
+              <h3>Hearing Calendar</h3>
+              <p>See matters date-wise and prepare for upcoming hearing schedules.</p>
+              <button class="btn" onclick="goToHearings()">Open Calendar</button>
+            </div>
+
+            <div class="quick-card">
+              <h3>Daily Review</h3>
+              <p>Use this dashboard as your first stop each day for office planning.</p>
+              <button class="btn btn-muted" onclick="window.location.reload()">Refresh Dashboard</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Practice Summary</h2>
+          <div class="summary-list">
+            <div class="summary-item">
+              <strong>Organized workflow</strong>
+              <span>Your office data is structured across clients, cases, hearings, and documents.</span>
+            </div>
+            <div class="summary-item">
+              <strong>Fast access</strong>
+              <span>Move quickly from the dashboard into detailed case or client management pages.</span>
+            </div>
+            <div class="summary-item">
+              <strong>Professional reporting</strong>
+              <span>Export case lists to PDF whenever you need a printable office summary.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        Dashboard for internal use — N.K Mishra & Associates
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function setCurrentDate() {
+      const now = new Date();
+
+      document.getElementById('currentDate').innerText = now.toLocaleDateString('en-IN', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const dateInput = document.getElementById('causeListDate');
+      if (dateInput) {
+        dateInput.value = now.toISOString().split('T')[0];
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const response = await fetch('/dashboard-stats', {
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await response.json();
+
+        document.getElementById('totalClients').innerText = data.totalClients || 0;
+        document.getElementById('totalCases').innerText = data.totalCases || 0;
+        document.getElementById('upcomingHearings').innerText = data.upcomingHearings || 0;
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function loadAlerts() {
+      try {
+        const response = await fetch('/cases', {
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const cases = await response.json();
+
+        const todayObj = new Date();
+        const today = todayObj.toISOString().split('T')[0];
+
+        const tomorrowObj = new Date();
+        tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+        const tomorrow = tomorrowObj.toISOString().split('T')[0];
+
+        const todayCases = [];
+        const tomorrowCases = [];
+
+        cases.forEach(c => {
+          if (c.nextDate === today) {
+            todayCases.push(`${c.title} (${c.caseNumber})`);
+          }
+          if (c.nextDate === tomorrow) {
+            tomorrowCases.push(`${c.title} (${c.caseNumber})`);
+          }
+        });
+
+        let message = '';
+
+        if (todayCases.length) {
+          message += `<p><strong>Today:</strong> ${todayCases.join(', ')}</p>`;
+        }
+
+        if (tomorrowCases.length) {
+          message += `<p><strong>Tomorrow:</strong> ${tomorrowCases.join(', ')}</p>`;
+        }
+
+        document.getElementById('alerts').innerHTML = message || '<p>No urgent hearings.</p>';
+      } catch (error) {
+        console.error('Error loading alerts:', error);
+        document.getElementById('alerts').innerHTML = '<p>Unable to load alerts.</p>';
+      }
+    }
+
+    function downloadDailyCauseList() {
+      const selectedDate = document.getElementById('causeListDate').value;
+
+      if (!selectedDate) {
+        alert('Please select a date');
+        return;
+      }
+
+      const url = '/export-daily-causelist-pdf?date=' + encodeURIComponent(selectedDate);
+      window.open(url, '_blank');
+    }
+
+    function goToClients() {
+      window.location.href = '/clients.html';
+    }
+
+    function goToCases() {
+      window.location.href = '/cases.html';
+    }
+
+    function goToHearings() {
+      window.location.href = '/hearing.html';
+    }
+
+    async function logout() {
+      try {
+        await fetch('/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        window.location.href = '/login.html';
+      } catch (error) {
+        alert('Logout failed');
+        console.error(error);
+      }
+    }
+
+    setCurrentDate();
+    loadStats();
+    loadAlerts();
+  </script>
+</body>
+</html>

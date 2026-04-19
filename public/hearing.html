@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hearings - N.K Mishra & Associates</title>
+  <link rel="stylesheet" href="/styles.css" />
+
+  <style>
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .day-name {
+      text-align: center;
+      font-weight: bold;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .day-cell {
+      min-height: 80px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      cursor: pointer;
+      background: white;
+      position: relative;
+    }
+
+    .day-cell:hover {
+      background: #f1f6ff;
+    }
+
+    .date-number {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .hearing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 4px;
+    }
+
+    .today {
+      border: 2px solid var(--accent);
+    }
+
+    .selected {
+      background: #eaf2ff;
+    }
+
+    .hearing-list-item {
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .hearing-list-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand-block">
+      <h1>N.K Mishra & Associates</h1>
+      <p>Legal Practice Management</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-link" href="/dashboard.html">Dashboard</a>
+      <a class="sidebar-link" href="/clients.html">Clients</a>
+      <a class="sidebar-link" href="/cases.html">Cases</a>
+      <a class="sidebar-link active" href="/hearing.html">Hearings</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="logout-link" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="topbar">
+      <div>
+        <h2 class="page-title">Hearings Calendar</h2>
+        <p class="page-subtitle">View hearings date-wise and track upcoming matters.</p>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="card">
+      <div class="calendar-header">
+        <button class="btn btn-muted" onclick="prevMonth()">←</button>
+        <h3 id="monthLabel"></h3>
+        <button class="btn btn-muted" onclick="nextMonth()">→</button>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Hearing List -->
+    <div class="card">
+      <h3 id="selectedDateTitle">Select a date</h3>
+      <div id="hearingList"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let currentDate = new Date();
+let cases = [];
+let selectedDate = null;
+
+// Load cases from backend
+async function loadCases() {
+  try {
+    const res = await fetch('/cases', { credentials: 'same-origin' });
+
+    if (!res.ok) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    cases = await res.json();
+    renderCalendar();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Render calendar
+function renderCalendar() {
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  document.getElementById('monthLabel').innerText =
+    currentDate.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  dayNames.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'day-name';
+    el.innerText = d;
+    grid.appendChild(el);
+  });
+
+  // Empty cells
+  for (let i = 0; i < firstDay; i++) {
+    grid.appendChild(document.createElement('div'));
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = new Date(year, month, day).toISOString().split('T')[0];
+
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+
+    if (dateStr === todayStr) cell.classList.add('today');
+    if (selectedDate === dateStr) cell.classList.add('selected');
+
+    cell.onclick = () => selectDate(dateStr);
+
+    const number = document.createElement('div');
+    number.className = 'date-number';
+    number.innerText = day;
+    cell.appendChild(number);
+
+    // Check if hearings exist
+    const hasHearing = cases.some(c => c.nextDate === dateStr);
+    if (hasHearing) {
+      const dot = document.createElement('div');
+      dot.className = 'hearing-dot';
+      cell.appendChild(dot);
+    }
+
+    grid.appendChild(cell);
+  }
+}
+
+// Select date
+function selectDate(dateStr) {
+  selectedDate = dateStr;
+  renderCalendar();
+
+  const list = document.getElementById('hearingList');
+  const title = document.getElementById('selectedDateTitle');
+
+  const filtered = cases.filter(c => c.nextDate === dateStr);
+
+  title.innerText = "Hearings on " + dateStr;
+
+  if (!filtered.length) {
+    list.innerHTML = '<p class="small-muted">No hearings.</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+
+  filtered.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'hearing-list-item';
+
+    div.innerHTML = `
+      <strong>${c.title}</strong><br>
+      Case No: ${c.caseNumber}<br>
+      Court: ${c.court}<br>
+      Client: ${c.clientName}<br>
+      Status: ${c.status}
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+// Month navigation
+function prevMonth() {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  renderCalendar();
+}
+
+function nextMonth() {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+}
+
+// Logout
+async function logout() {
+  await fetch('/logout', { method: 'POST' });
+  window.location.href = '/login.html';
+}
+
+// Init
+loadCases();
+</script>
+
+</body>
+</html>

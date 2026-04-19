@@ -1,44 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - N.K Mishra & Associates</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
 <body>
+  <div class="login-page">
+    <div class="login-panel">
+      <div class="login-brand">
+        <div class="firm">N.K Mishra & Associates</div>
+        <div class="small-muted">Legal Case Management System</div>
+      </div>
 
-<h2>Login</h2>
+      <h2>Welcome Back</h2>
+      <p>Please sign in to continue.</p>
 
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
+      <div>
+        <label for="username">Username</label>
+        <input id="username" type="text" placeholder="Enter username" />
+      </div>
 
-<br><br>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Enter password" />
+      </div>
 
-<button onclick="login()">Login</button>
-<button onclick="register()">Register</button>
+      <div class="button-row">
+        <button class="btn" style="width:100%;" onclick="login()">Login</button>
+      </div>
 
-<script>
-function login() {
-    fetch('/login', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-            username: user.value,
-            password: pass.value
-        })
-    })
-    .then(res => res.text())
-    .then(data => alert(data));
-}
+      <div class="footer-note" style="margin-top:16px;">
+        Default login: admin / admin123
+      </div>
+    </div>
+  </div>
 
-function register() {
-    fetch('/register', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-            username: user.value,
-            password: pass.value
-        })
-    })
-    .then(res => res.text())
-    .then(data => alert(data));
-}
-</script>
+  <script>
+    async function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
 
+      if (!username || !password) {
+        alert('Please enter username and password');
+        return;
+      }
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = '/dashboard.html';
+        } else {
+          alert(data.message || 'Invalid credentials');
+        }
+      } catch (error) {
+        alert('Error connecting to server');
+        console.error(error);
+      }
+    }
+  </script>
 </body>
 </html>

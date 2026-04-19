@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>N.K Mishra & Associates</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .home-page {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(58, 123, 213, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(22, 58, 95, 0.16), transparent 30%),
+        linear-gradient(135deg, #eef4fb, #f8fbff);
+      color: var(--text);
+    }
+
+    .home-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 22px 50px;
+    }
+
+    .home-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .home-brand h1 {
+      margin: 0;
+      font-size: 24px;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    .home-brand p {
+      margin: 6px 0 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .home-hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 26px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .hero-main,
+    .hero-side {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-main {
+      padding: 42px 38px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #e9f2ff;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero-main h2 {
+      margin: 0 0 14px 0;
+      font-size: 42px;
+      line-height: 1.15;
+      color: var(--primary);
+      max-width: 700px;
+    }
+
+    .hero-main p {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 680px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .hero-actions .btn {
+      min-width: 170px;
+      padding: 13px 18px;
+      font-size: 15px;
+    }
+
+    .hero-side {
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-side h3 {
+      margin: 0 0 18px 0;
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    .feature-points {
+      display: grid;
+      gap: 14px;
+    }
+
+    .feature-point {
+      background: #f8fbff;
+      border: 1px solid #e8eef6;
+      border-radius: 16px;
+      padding: 14px 15px;
+    }
+
+    .feature-point strong {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .feature-point span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .home-section-title {
+      margin: 0 0 14px 0;
+      font-size: 26px;
+      color: var(--primary);
+    }
+
+    .home-section-subtitle {
+      margin: 0 0 22px 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 10px 0;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .info-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 10px 0;
+      color: var(--primary);
+    }
+
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .home-footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1024px) {
+      .home-hero,
+      .features-grid,
+      .info-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main h2 {
+        font-size: 34px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .home-wrapper {
+        padding: 16px 14px 28px;
+      }
+
+      .home-nav,
+      .hero-main,
+      .hero-side,
+      .feature-card,
+      .info-card {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .hero-main h2 {
+        font-size: 28px;
+      }
+
+      .hero-main p {
+        font-size: 15px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="home-page">
+    <div class="home-wrapper">
+      <header class="home-nav">
+        <div class="home-brand">
+          <h1>N.K Mishra & Associates</h1>
+          <p>Legal Case Management System</p>
+        </div>
+
+        <div class="button-row" style="margin:0;">
+          <button class="btn btn-muted" onclick="goToLogin()">Login</button>
+        </div>
+      </header>
+
+      <section class="home-hero">
+        <div class="hero-main">
+          <div class="hero-tag">Professional Legal Workflow</div>
+          <h2>Manage clients, cases, documents, and hearings in one place.</h2>
+          <p>
+            A clean and reliable legal management platform for daily chamber work,
+            case tracking, client organization, hearing schedules, and document handling —
+            designed for the practical needs of N.K Mishra & Associates.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn" onclick="goToLogin()">Enter Dashboard</button>
+            <button class="btn btn-muted" onclick="scrollToFeatures()">Explore Features</button>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <h3>What this system helps you do</h3>
+          <div class="feature-points">
+            <div class="feature-point">
+              <strong>Track matters clearly</strong>
+              <span>Keep case titles, court names, numbers, dates, and status organized.</span>
+            </div>
+            <div class="feature-point">
+              <strong>Manage client records</strong>
+              <span>Store client contact details, notes, and related case information.</span>
+            </div>
+            <div class="feature-point">
+              <strong>Never miss a hearing</strong>
+              <span>Use the dashboard alerts and hearing calendar to stay prepared.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="featuresSection">
+        <h2 class="home-section-title">Core Features</h2>
+        <p class="home-section-subtitle">
+          Built to make daily legal office work structured, faster, and easier to review.
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Client Management</h3>
+            <p>Maintain client profiles with contact details, address, notes, and searchable records.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>Case Tracking</h3>
+            <p>Monitor cases by title, number, court, next date, status, and connected client.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>Document Storage</h3>
+            <p>Upload, view, and remove case documents directly inside the relevant case file.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>Hearing Calendar</h3>
+            <p>Use a date-wise view of hearings to quickly identify upcoming matters and daily schedules.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>PDF Export</h3>
+            <p>Generate downloadable PDF reports of case lists for printing and office reference.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>Protected Access</h3>
+            <p>Session-based login helps keep chamber records private and accessible only to authorized users.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-strip">
+        <div class="info-card">
+          <h3>Professional and Practical</h3>
+          <p>
+            The interface is designed for actual office use: clean forms, clear lists,
+            quick navigation, and focused case information without unnecessary clutter.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Built for Daily Court Work</h3>
+          <p>
+            From client entries to hearing dates and document handling, the system supports
+            regular legal workflow in a structured and dependable way.
+          </p>
+        </div>
+      </section>
+
+      <div class="home-footer">
+        © N.K Mishra & Associates — Legal Practice Management System
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goToLogin() {
+      window.location.href = '/login.html';
+    }
+
+    function scrollToFeatures() {
+      document.getElementById('featuresSection').scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+  </script>
+</body>
+</html>
